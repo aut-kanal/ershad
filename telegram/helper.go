@@ -7,6 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"gitlab.com/kanalbot/ershad/models"
+	"gitlab.com/kanalbot/ershad/ui/keyboard"
+
 	"gitlab.com/kanalbot/ershad/configuration"
 	"gitlab.com/kanalbot/ershad/ui/text"
 
@@ -39,7 +42,7 @@ func downloadFile(url string) ([]byte, error) {
 	return ioutil.ReadAll(resp.Body)
 }
 
-func generateErshadMessage(msg *Message) telegramAPI.Chattable {
+func generateErshadMessage(msg *models.Message, id string) telegramAPI.Chattable {
 	chatID := configuration.GetInstance().GetInt64("ershad-chatid")
 
 	// Send messages with media attached
@@ -58,34 +61,41 @@ func generateErshadMessage(msg *Message) telegramAPI.Chattable {
 			mediaFile.Name = msg.Audio.Title
 			audio := telegramAPI.NewAudioUpload(chatID, mediaFile)
 			audio.Caption = msg.Caption
+			audio.ReplyMarkup = keyboard.NewErshadInlineKeyboard(id)
 			return audio
 		}
 		if msg.Voice != nil {
 			mediaFile.Name = "voice"
 			voice := telegramAPI.NewVoiceUpload(chatID, mediaFile)
 			voice.Caption = msg.Caption
+			voice.ReplyMarkup = keyboard.NewErshadInlineKeyboard(id)
 			return voice
 		}
 		if msg.Video != nil {
 			mediaFile.Name = "video"
 			video := telegramAPI.NewAudioUpload(chatID, mediaFile)
 			video.Caption = msg.Caption
+			video.ReplyMarkup = keyboard.NewErshadInlineKeyboard(id)
 			return video
 		}
 		if msg.Document != nil {
 			mediaFile.Name = msg.Document.FileName
 			document := telegramAPI.NewDocumentUpload(chatID, mediaFile)
 			document.Caption = msg.Caption
+			document.ReplyMarkup = keyboard.NewErshadInlineKeyboard(id)
 			return document
 		}
 		if msg.Photo != nil {
 			mediaFile.Name = "photo"
 			photo := telegramAPI.NewPhotoUpload(chatID, mediaFile)
 			photo.Caption = msg.Caption
+			photo.ReplyMarkup = keyboard.NewErshadInlineKeyboard(id)
 			return photo
 		}
 	}
 
 	// Message without media
-	return telegramAPI.NewMessage(chatID, msg.Text)
+	replyMsg := telegramAPI.NewMessage(chatID, msg.Text)
+	replyMsg.ReplyMarkup = keyboard.NewErshadInlineKeyboard(id)
+	return replyMsg
 }

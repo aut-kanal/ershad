@@ -35,4 +35,7 @@ func StartBot() {
 func setCallbacks(bot *miyanbor.Bot) {
 	bot.SetSessionStartCallbackHandler(sessionStartHandler)
 	bot.SetFallbackCallbackHandler(unknownMessageHandler)
+
+	bot.AddCallbackHandler("^a(.+)$", messageAcceptHandler)
+	bot.AddCallbackHandler("^d(.+)$", messageRejectHandler)
 }

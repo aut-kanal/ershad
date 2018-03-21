@@ -1,4 +1,4 @@
-package telegram
+package models
 
 import telegramAPI "gopkg.in/telegram-bot-api.v4"
 
