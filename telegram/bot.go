@@ -37,5 +37,5 @@ func setCallbacks(bot *miyanbor.Bot) {
 	bot.SetFallbackCallbackHandler(unknownMessageHandler)
 
 	bot.AddCallbackHandler("^a(.+)$", messageAcceptHandler)
-	bot.AddCallbackHandler("^d(.+)$", messageRejectHandler)
+	bot.AddCallbackHandler("^r(.+)$", messageRejectHandler)
 }
