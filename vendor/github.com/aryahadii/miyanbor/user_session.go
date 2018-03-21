@@ -9,3 +9,8 @@ type UserSession struct {
 	Payload         map[string]interface{}
 	messageCallback CallbackFunction
 }
+
+func (u *UserSession) ResetSession() {
+	u.messageCallback = nil
+	u.Payload = map[string]interface{}{}
+}

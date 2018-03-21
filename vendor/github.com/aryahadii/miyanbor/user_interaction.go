@@ -25,9 +25,9 @@ func (b *Bot) AskStringQuestion(question string, userID int, chatID int64, callb
 	} else {
 		userSession = userSessionInterface.(*UserSession)
 	}
-	userSession.messageCallback = func(userSession *UserSession, input interface{}) {
+	userSession.messageCallback = func(userSession *UserSession, matches []string, input interface{}) {
 		userSession.messageCallback = nil
-		callback(userSession, input)
+		callback(userSession, matches, input)
 	}
 }
 

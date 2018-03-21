@@ -30,45 +30,52 @@ func (b *Bot) handleNewUpdate(update *telegramAPI.Update) {
 	if userSession == nil {
 		userSession = createUserSession(update)
 		if sessionStartCallbackFunction != nil {
-			sessionStartCallbackFunction(userSession, update)
+			sessionStartCallbackFunction(userSession, nil, update)
 		}
 	}
+
+	var updateHandled bool
 
 	// Find and call callback function
 	if update.CallbackQuery != nil {
 		for _, callback := range callbackQueryCallbacks {
 			if matches := callback.Pattern.FindStringSubmatch(update.CallbackQuery.Data); matches != nil {
-				callback.Function(userSession, matches)
-				return
+				callback.Function(userSession, matches, update)
+				updateHandled = true
+				break
 			}
 		}
 	} else if update.Message != nil {
 		if update.Message.IsCommand() {
 			for _, callback := range commandsCallbacks {
 				if matches := callback.Pattern.FindStringSubmatch(update.Message.Command()); matches != nil {
-					callback.Function(userSession, matches)
+					callback.Function(userSession, matches, update)
+					updateHandled = true
 					break
 				}
 			}
 		} else {
 			if userSession.messageCallback != nil {
-				userSession.messageCallback(userSession, update.Message)
+				userSession.messageCallback(userSession, nil, update)
+				updateHandled = true
 			} else {
 				for _, callback := range messagesCallbacks {
 					if matches := callback.Pattern.FindStringSubmatch(update.Message.Text); matches != nil {
-						callback.Function(userSession, matches)
+						callback.Function(userSession, matches, update)
+						updateHandled = true
 						break
 					}
 				}
 			}
 		}
-		return
 	} else {
 		logrus.Errorf("unknown update")
 	}
 
 	// Call fallback callback function
-	fallbackCallbackFunction(userSession, update)
+	if !updateHandled {
+		fallbackCallbackFunction(userSession, nil, update)
+	}
 }
 
 func getSenderChatID(update *telegramAPI.Update) (int64, error) {
